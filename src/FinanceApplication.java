@@ -15,10 +15,11 @@ public class FinanceApplication {
         this.scanner = scanner;
     }
 
+
     void convert() {
         System.out.println("Ваши сбережения: " + balance + " RUB");
-        System.out.println("В какую валюту хотите конвертировать?");
-        String currency = scanner.next();
+        System.out.println("В какую валюту хотите конвертировать? Доступные варианты: 1 - USD, 2 - EUR или 3 - JPY.");
+        int currency = scanner.nextInt();
         converter.convert(balance, currency);
     }
 

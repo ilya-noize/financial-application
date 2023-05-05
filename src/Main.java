@@ -7,7 +7,7 @@ public class Main {
         System.out.println("Введите размер остатка на вашем счёте:");
         double balance = scanner.nextDouble();
 
-        FinanceApplication fin = new FinanceApplication(balance, scanner);
+        FinanceApplication financeApplication = new FinanceApplication(balance, scanner);
 
         while (true) {
             printMenu();
@@ -17,11 +17,11 @@ public class Main {
                 System.out.println("Выход.");
                 break;
             } else if (command == 1) {
-                fin.convert();
+                financeApplication.convert();
             } else if (command == 2) {
-                fin.saveExpense();
+                financeApplication.saveExpense();
             } else if (command == 3) {
-                fin.printAllExpenses();
+                financeApplication.printAllExpenses();
             } else {
                 System.out.println("Извините, такой команды пока нет.");
             }

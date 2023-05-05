@@ -15,15 +15,24 @@ public class Converter {
         client = HttpClient.newHttpClient();
     }
 
-    public void convert(double rubles, String currency) {
-        double rate = getRate(currency);
-        if (rate != 0) {
-            System.out.println("Ваши сбережения: " + (rubles * rate) + " " + currency);
+
+    public void convert(double rubles, int currency) {
+        if (currency == 1) {
+            double rate = getRate("USD");
+            System.out.println("Ваши сбережения в долларах: " + rubles * rate);
+        } else if (currency == 2) {
+            double rate = getRate("EUR");
+            System.out.println("Ваши сбережения в евро: " + rubles * rate);
+        } else if (currency == 3) {
+            double rate = getRate("JPY");
+            System.out.println("Ваши сбережения в иенах: " + rubles * rate);
+        } else {
+            System.out.println("Неизвестная валюта");
         }
     }
 
-    private double getRate(String currencySymbol) {
-        URI url = URI.create("https://api.exchangerate.host/latest?base=RUB&symbols=" + currencySymbol);
+    private double getRate(String currencySMB) {
+        URI url = URI.create("https://api.exchangerate.host/latest?base=RUB&symbols=" + currencySMB);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
@@ -37,7 +46,7 @@ public class Converter {
                 JsonElement jsonElement = JsonParser.parseString(response.body());
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 JsonObject ratesObject = jsonObject.get("rates").getAsJsonObject();
-                rate = ratesObject.get(currencySymbol.toLowerCase()).getAsDouble();
+                rate = ratesObject.get(currencySMB).getAsDouble();
             } else {
                 System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
             }
