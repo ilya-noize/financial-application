@@ -1,24 +1,50 @@
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 public class Converter {
+    private final HttpClient client;
 
-    double rateUSD;
-    double rateEUR;
-    double rateJPY;
-
-    Converter(double usd, double eur, double jpy) {
-        rateUSD = usd;
-        rateEUR = eur;
-        rateJPY = jpy;
+    public Converter() {
+        client = HttpClient.newHttpClient();
     }
 
-    void convert(double rubles, int currency) {
-        if (currency == 1) {
-            System.out.println("Ваши сбережения в долларах: " + rubles / rateUSD);
-        } else if (currency == 2) {
-            System.out.println("Ваши сбережения в евро: " + rubles / rateEUR);
-        } else if (currency == 3) {
-            System.out.println("Ваши сбережения в иенах: " + rubles / rateJPY);
-        } else {
-            System.out.println("Неизвестная валюта");
+    public void convert(double rubles, String currency) {
+        double rate = getRate(currency);
+        if (rate != 0) {
+            System.out.println("Ваши сбережения: " + (rubles * rate) + " " + currency);
         }
+    }
+
+    private double getRate(String currencySymbol) {
+        URI url = URI.create("https://api.exchangerate.host/latest?base=RUB&symbols=" + currencySymbol);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .GET()
+                .build();
+
+        double rate = 0.0;
+        try {
+            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JsonElement jsonElement = JsonParser.parseString(response.body());
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                JsonObject ratesObject = jsonObject.get("rates").getAsJsonObject();
+                rate = ratesObject.get(currencySymbol.toLowerCase()).getAsDouble();
+            } else {
+                System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
+            }
+        } catch (NullPointerException | IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
+            System.out.println("Во время выполнения запроса возникла ошибка.\n" +
+                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+        }
+        return rate;
     }
 }
